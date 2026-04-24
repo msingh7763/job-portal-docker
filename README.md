@@ -202,6 +202,113 @@ The API uses an HTTP-only cookie named `token` for auth. Make sure `withCredenti
 
 ---
 
+## 🐳 Docker (Production)
+
+This repository includes a root `Dockerfile` that:
+
+- Installs backend and frontend dependencies
+- Builds the React app (`Frontend/dist`)
+- Serves the React build from the Express backend
+- Runs on port `5000`
+
+### 1) Build image
+
+```bash
+docker build -t job-portal:prod .
+```
+
+### 2) Run container
+
+```bash
+docker run --name job-portal-app -p 5000:5000 --env-file Backend/.env job-portal:prod
+```
+
+> Ensure `Backend/.env` includes production values like `MONGO_URI`, `JWT_SECRET`, and `PORT=5000`.
+
+### 3) Verify running containers
+
+```bash
+docker ps
+```
+
+You should see `job-portal-app` mapped to `0.0.0.0:5000->5000/tcp`.
+
+### 4) Optional: Run app + MongoDB with Docker Compose
+
+```bash
+docker compose up --build -d
+```
+
+Stop and remove containers:
+
+```bash
+docker compose down
+```
+
+---
+
+## 🐳 Docker Setup
+
+### Prerequisites
+
+- Install Docker and Docker Compose on your system.
+
+### Build and Run Containers
+
+1. Navigate to the project root directory:
+
+   ```bash
+   cd C:\Users\hp\Desktop\Job-portal-application
+   ```
+
+2. Build and start the Docker containers:
+
+   ```bash
+   docker-compose up --build
+   ```
+
+3. Access the application:
+   - **Backend**: `http://localhost:5001` (or the port specified in your `docker-compose.yml` file).
+   - **Frontend**: `http://localhost:5175` (or the port specified in your `docker-compose.yml` file).
+
+4. To stop the containers:
+
+   ```bash
+   docker-compose down
+   ```
+
+### Verify Running Containers
+
+To check if the containers are running, use:
+
+```bash
+docker ps
+```
+
+This will list all active containers.
+
+### Logs
+
+To view logs for a specific service, use:
+
+```bash
+docker-compose logs <service-name>
+```
+
+Replace `<service-name>` with the name of the service (e.g., `backend`, `frontend`, `mongo`).
+
+### Access MongoDB
+
+If MongoDB is running as a container, you can access it using:
+
+```bash
+docker exec -it <container-id> mongosh
+```
+
+Replace `<container-id>` with the ID of the MongoDB container from `docker ps`.
+
+---
+
 ## 🧩 Notes
 
 - This repository currently keeps the backend and frontend separated; you can run them in parallel locally.

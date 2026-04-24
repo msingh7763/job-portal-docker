@@ -1,15 +1,14 @@
 import axios from "axios";
 
 // Get API configuration from environment variables
-const DEFAULT_PROD_API_BASE_URL = "https://job-portal-3-q98e.onrender.com";
 const rawBaseUrl = import.meta.env.VITE_API_BASE_URL;
 const API_BASE_URL = (rawBaseUrl || "").trim();
 const API_TIMEOUT = import.meta.env.VITE_API_TIMEOUT || 10000; // Default 10 seconds
 const resolvedBaseURL = API_BASE_URL
   ? API_BASE_URL
   : import.meta.env.PROD
-    ? DEFAULT_PROD_API_BASE_URL
-    : "http://localhost:5001";
+    ? ""
+    : "http://localhost:5000";
 
 // Log configuration on app start (development only)
 if (import.meta.env.DEV) {
@@ -20,12 +19,12 @@ if (import.meta.env.DEV) {
 
 if (!API_BASE_URL && import.meta.env.PROD) {
   console.warn(
-    `⚠️  VITE_API_BASE_URL not set. Using fallback ${DEFAULT_PROD_API_BASE_URL}`
+    "⚠️  VITE_API_BASE_URL not set. Using same-origin API (recommended for Docker)."
   );
 }
 
 if (!API_BASE_URL && import.meta.env.DEV) {
-  console.warn("⚠️  VITE_API_BASE_URL not set. Using default http://localhost:5001");
+  console.warn("⚠️  VITE_API_BASE_URL not set. Using default http://localhost:5000");
 }
 
 const api = axios.create({

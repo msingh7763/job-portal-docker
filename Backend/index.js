@@ -5,6 +5,9 @@ import dotenv from "dotenv";
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";
 import http from "http";
+import path from "path";
+import { existsSync } from "fs";
+import { fileURLToPath } from "url";
 import { Server } from "socket.io";
 
 import connectDB from "./utils/db.js";
@@ -16,6 +19,11 @@ import { notFound, errorHandler } from "./middleware/errorHandler.js";
 import { Company } from "./models/company.model.js";
 
 dotenv.config();
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const frontendDistPath = path.resolve(__dirname, "..", "Frontend", "dist");
+const hasFrontendBuild = existsSync(frontendDistPath);
 
 const app = express();
 const server = http.createServer(app);
@@ -80,7 +88,7 @@ app.use(
 /* ================= ROUTES ================= */
 
 // Health check
-app.get("/", (req, res) => {
+app.get("/api/health", (req, res) => {
   res.status(200).json({
     message: "Job Portal backend is running 🚀",
     success: true,
@@ -93,6 +101,15 @@ app.use("/api/users", userRoute);
 app.use("/api/company", companyRoute);
 app.use("/api/job", jobRoute);
 app.use("/api/application", applicationRoute);
+
+if (hasFrontendBuild) {
+  app.use(express.static(frontendDistPath));
+
+  // SPA fallback: serve React entry for all non-API routes.
+  app.get(/^\/(?!api).*/, (req, res) => {
+    res.sendFile(path.join(frontendDistPath, "index.html"));
+  });
+}
 
 /* ================= ERROR HANDLING ================= */
 app.use(notFound);
@@ -118,7 +135,7 @@ process.on("uncaughtException", (error) => {
 });
 
 /* ================= START SERVER ================= */
-const PORT = process.env.PORT || 5001;
+const PORT = Number(process.env.PORT) || 5000;
 
 const startServer = async () => {
   try {
